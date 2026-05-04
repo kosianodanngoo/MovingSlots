@@ -5,12 +5,12 @@ import io.github.kosianodangoo.movingslots.SlotMotion;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.Slot;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 
-@Mod.EventBusSubscriber(modid = MovingSlots.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+@EventBusSubscriber(modid = MovingSlots.MODID, value = Dist.CLIENT)
 public class ClientEvents {
     @SubscribeEvent
     public static void onScreenRenderPre(ScreenEvent.Render.Pre event) {
