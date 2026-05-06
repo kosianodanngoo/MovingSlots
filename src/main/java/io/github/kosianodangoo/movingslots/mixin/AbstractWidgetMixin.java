@@ -1,20 +1,16 @@
 package io.github.kosianodangoo.movingslots.mixin;
 
 import io.github.kosianodangoo.movingslots.Config;
-import io.github.kosianodangoo.movingslots.SlotMotion;
-import net.minecraft.world.inventory.Slot;
+import io.github.kosianodangoo.movingslots.WidgetMotion;
+import net.minecraft.client.gui.components.AbstractWidget;
 import org.spongepowered.asm.mixin.*;
 
-@Mixin(Slot.class)
-public abstract class SlotMixin implements SlotMotion {
-    @Shadow
-    @Final
-    @Mutable
-    public int x;
-    @Shadow
-    @Final
-    @Mutable
-    public int y;
+@Mixin(AbstractWidget.class)
+public class AbstractWidgetMixin implements WidgetMotion {
+    @Shadow private int x;
+    @Shadow private int y;
+    @Shadow protected int width;
+    @Shadow protected int height;
 
     @Unique
     private boolean movingSlots$initialized;
@@ -31,7 +27,7 @@ public abstract class SlotMixin implements SlotMotion {
 
     @Override
     @Unique
-    public void movingSlots$tick(int screenWidth, int screenHeight, int leftPos, int topPos) {
+    public void movingSlots$tick(int screenWidth, int screenHeight) {
         long now = System.nanoTime();
         if (!movingSlots$initialized) {
             double angle = Math.random() * 2.0 * Math.PI;
@@ -48,12 +44,8 @@ public abstract class SlotMixin implements SlotMotion {
         else if (dt > 0.1f) dt = 0.1f;
         movingSlots$lastNanos = now;
 
-        int minX = -leftPos;
-        int minY = -topPos;
-        int maxX = screenWidth - 16 - leftPos;
-        int maxY = screenHeight - 16 - topPos;
-        if (maxX < minX) maxX = minX;
-        if (maxY < minY) maxY = minY;
+        int maxX = Math.max(0, screenWidth - this.width);
+        int maxY = Math.max(0, screenHeight - this.height);
 
         movingSlots$dxAcc += movingSlots$vx * dt;
         movingSlots$dyAcc += movingSlots$vy * dt;
@@ -66,8 +58,8 @@ public abstract class SlotMixin implements SlotMotion {
         int newX = this.x + idx;
         int newY = this.y + idy;
 
-        if (newX < minX) {
-            newX = 2 * minX - newX;
+        if (newX < 0) {
+            newX = -newX;
             movingSlots$vx = -movingSlots$vx;
             movingSlots$dxAcc = -movingSlots$dxAcc;
         } else if (newX > maxX) {
@@ -75,8 +67,8 @@ public abstract class SlotMixin implements SlotMotion {
             movingSlots$vx = -movingSlots$vx;
             movingSlots$dxAcc = -movingSlots$dxAcc;
         }
-        if (newY < minY) {
-            newY = 2 * minY - newY;
+        if (newY < 0) {
+            newY = -newY;
             movingSlots$vy = -movingSlots$vy;
             movingSlots$dyAcc = -movingSlots$dyAcc;
         } else if (newY > maxY) {
